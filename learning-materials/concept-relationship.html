@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>概念关系说明 · Agent × 上下文 × Skill</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  :root{
+    --bg:#f6f7f9; --card:#ffffff; --ink:#1f2328; --muted:#5b6570;
+    --line:#e3e7ec; --accent:#334155; --accent-soft:#e8edf3;
+    --warn:#b45309; --warn-soft:#fef3c7; --ok:#0f766e; --ok-soft:#e6f5f2;
+    --code-bg:#f2f4f7;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; background:var(--bg); color:var(--ink);
+    font:16px/1.75 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;}
+  .wrap{max-width:960px; margin:0 auto; padding:32px 20px 72px}
+  header.hero{background:linear-gradient(135deg,#334155,#64748b); color:#fff;
+    border-radius:14px; padding:28px 28px 24px; margin-bottom:22px;}
+  header.hero h1{margin:0 0 6px; font-size:26px; letter-spacing:.5px}
+  header.hero .sub{opacity:.92; font-size:14.5px}
+  header.hero .meta{margin-top:14px; font-size:12.5px; opacity:.88}
+  nav.toc{background:var(--card); border:1px solid var(--line); border-radius:12px;
+    padding:14px 18px; margin-bottom:22px;}
+  nav.toc b{font-size:13px; color:var(--muted); display:block; margin-bottom:8px; letter-spacing:1px}
+  nav.toc a{display:inline-block; margin:4px 12px 4px 0; color:#1f6feb; text-decoration:none; font-size:14px}
+  nav.toc a:hover{text-decoration:underline}
+  section{background:var(--card); border:1px solid var(--line); border-radius:12px;
+    padding:22px 24px; margin-bottom:18px;}
+  h2{font-size:19px; margin:0 0 14px; padding-bottom:10px; border-bottom:2px solid var(--accent-soft)}
+  h2 .num{display:inline-block; background:var(--accent); color:#fff; font-size:13px;
+    width:24px; height:24px; line-height:24px; text-align:center; border-radius:6px; margin-right:9px}
+  h3{font-size:15.5px; margin:20px 0 8px; color:#0b3d91}
+  p{margin:10px 0} ul,ol{margin:10px 0; padding-left:22px} li{margin:6px 0}
+  code{background:var(--code-bg); padding:2px 6px; border-radius:5px;
+    font:13.5px/1.5 "SFMono-Regular",Consolas,"Courier New",monospace}
+  pre{background:var(--code-bg); border:1px solid var(--line); border-radius:8px;
+    padding:12px 14px; overflow-x:auto; font:13px/1.6 "SFMono-Regular",Consolas,monospace}
+  blockquote{margin:14px 0; padding:12px 16px; background:var(--accent-soft);
+    border-left:4px solid var(--accent); border-radius:0 8px 8px 0}
+  blockquote p{margin:4px 0}
+  table{border-collapse:collapse; width:100%; margin:12px 0; font-size:14.5px}
+  th,td{border:1px solid var(--line); padding:9px 11px; text-align:left; vertical-align:top}
+  th{background:#f0f3f7; font-weight:600}
+  .tag{display:inline-block; font-size:12px; padding:1px 8px; border-radius:20px;
+    margin-right:6px; vertical-align:middle; white-space:nowrap}
+  .t-fact{background:var(--ok-soft); color:var(--ok); border:1px solid #b7e0d8}
+  .t-mine{background:var(--warn-soft); color:var(--warn); border:1px solid #fcd34d}
+  .callout{border:1px dashed var(--line); border-radius:10px; padding:12px 16px;
+    background:#fcfcfd; font-size:14.5px}
+  .callout.warn{background:var(--warn-soft); border-color:#fcd34d}
+  a{color:#1f6feb}
+  footer{color:var(--muted); font-size:13px; text-align:center; margin-top:26px}
+  @media (max-width:640px){ .wrap{padding:18px 12px 48px} header.hero{padding:20px} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <h1>概念关系说明 · Agent × 大模型的上下文 × Skill</h1>
+  <div class="sub">上下文是约束，Agent 是主体，Skill 是约束之下的工程解法</div>
+  <div class="meta">生成工具：concept-study-forge · 生成日期：2026-09-04 · 来源核验：2026-09-04 · 本页为 <a href="concept-relationship.md" style="color:#cfe0ff">concept-relationship.md</a> 的可视化版本</div>
+</header>
+
+<nav class="toc">
+  <b>目录</b>
+  <a href="#s1">1 三个定位</a><a href="#s2">2 关系图</a><a href="#s3">3 上下文如何影响 Agent</a>
+  <a href="#s4">4 Skill 如何沉淀知识</a><a href="#s5">5 贯穿例子</a><a href="#s6">6 我的判断</a>
+</nav>
+
+<!-- 1 -->
+<section id="s1">
+<h2><span class="num">1</span>先给三个概念各安一个位置</h2>
+<table>
+  <tr><th style="width:16%">概念</th><th style="width:26%">一句话</th><th style="width:22%">回答的问题</th><th>它坏了会怎样</th></tr>
+  <tr><td><b>上下文</b></td><td>模型这一次能同时看到的全部输入</td><td>「它现在知道什么」</td><td>看不见关键材料 → 决策失去依据</td></tr>
+  <tr><td><b>Agent</b></td><td>自己决定下一步、并调工具把事做完的程序</td><td>「谁在做事、怎么推进」</td><td>只能一次性回答，无法完成多步任务</td></tr>
+  <tr><td><b>Skill</b></td><td>把做某件事的成熟方法写成文件，按需注入</td><td>「这件事的标准做法是什么」</td><td>每次都从头现想流程，重复、易漂移</td></tr>
+</table>
+<p>一句话概括三者的层级：<b>上下文是约束条件，Agent 是行动主体，Skill 是在约束之下让行动变可靠的工程手段。</b></p>
+</section>
+
+<!-- 2 -->
+<section id="s2">
+<h2><span class="num">2</span>关系图</h2>
+<div class="mermaid">
+flowchart TB
+    subgraph CTX["上下文：唯一的认知带宽（有限、临时）"]
+        direction LR
+        C1["系统指令"]
+        C2["对话历史"]
+        C3["工具返回值 / 检索片段"]
+        C4["当前输入"]
+    end
+    subgraph SK["Skill：外置在上下文之外的方法库"]
+        S1["name + description（常驻，极省）"]
+        S2["SKILL.md 正文（命中才加载）"]
+        S3["scripts / references / templates（用到才读）"]
+    end
+    subgraph AG["Agent：循环决策主体"]
+        A1["Thought 思考"] --> A2["Action 调工具"]
+        A2 --> A3["Observation 观察"]
+        A3 --> A4{"达标?"}
+        A4 -- 否 --> A1
+    end
+    CTX -->|"每一步都完整读入"| AG
+    AG -->|"每轮观察写回"| CTX
+    SK -.->|"按需注入：补充怎么做"| CTX
+    SK -.->|"降低对上下文的占用与依赖"| AG
+    AG -.->|"成功经验被固化下来"| SK
+</div>
+<div class="callout"><b>文字版兜底：</b>上下文是 Agent 每一步决策的唯一输入；Agent 每执行一轮，就把观察结果写回上下文；Skill 平时待在上下文之外，只在被判断相关时按需注入，从而在不挤占上下文的前提下把「标准做法」交给 Agent；Agent 跑通过的任务，其方法又可以被固化成新的 Skill。三者构成一条<b>闭环</b>。</div>
+</section>
+
+<!-- 3 -->
+<section id="s3">
+<h2><span class="num">3</span>重点一：上下文如何影响 Agent 的工作</h2>
+<p>结论先行：<b>上下文不是 Agent 的「输入参数」，而是它的「认知带宽」。</b>这条带宽的宽窄、内容与排列方式，直接决定 Agent 能跑多少步、会不会跑偏。</p>
+<table>
+  <tr><th style="width:24%">影响路径</th><th style="width:32%">机制</th><th style="width:24%">后果</th><th>依据</th></tr>
+  <tr><td><b>① 决定每步能看到什么</b></td><td>Thought 只能基于上下文内容产生</td><td>关键不在上下文里 → 它根本不知道该考虑</td><td>ReAct（arXiv:2210.03629）</td></tr>
+  <tr><td><b>② 每轮观察累积占用</b></td><td>工具返回值每轮追加，下轮完整读入</td><td>步数越多膨胀越快，成本与时延同步上升</td><td>见 <a href="agent.html">agent.html</a> 3.2 节</td></tr>
+  <tr><td><b>③ 位置效应让它「忘本」</b></td><td>对长上下文中段内容利用能力弱于首尾</td><td>早期目标跑到中段「看不见」→ 行为漂移</td><td>Lost in the Middle（arXiv:2307.03172）</td></tr>
+  <tr><td><b>④ 溢出后被截断或压缩</b></td><td>窗口有硬上限</td><td>关键信息静默丢失，它还以为看全了</td><td>见 <a href="llm-context.html">llm-context.html</a> 5.2 节</td></tr>
+  <tr><td><b>⑤ 噪声稀释注意力</b></td><td>注意力在全部 token 间分配</td><td>无关内容越多，关键内容分到的越少</td><td>自注意力（arXiv:1706.03762）</td></tr>
+  <tr><td><b>⑥ 缓存依赖顺序稳定</b></td><td>不变前缀可命中缓存以降本降时延</td><td>顺序一变，缓存失效，成本陡增</td><td>Anthropic Prompt caching 文档</td></tr>
+</table>
+<div class="callout"><b>一个可以直接观察到的推论：</b>正因为上下文是有限带宽，Agent 工程里几乎所有技巧——拆小步骤、及时压缩历史、把长结果落盘只回传摘要、把流程外置为 Skill——本质上都是<b>上下文管理</b>。</div>
+<blockquote><p><span class="tag t-mine">我的判断</span>评价一个 Agent 系统，「它怎么管理上下文」比「它接了多少工具」更能预测实际表现。<br><b>反驳路径：</b>若任务步骤极少、上下文远未用满（如单步问答），上下文管理确实无关紧要，此时工具覆盖面与模型能力才是瓶颈。</p></blockquote>
+</section>
+
+<!-- 4 -->
+<section id="s4">
+<h2><span class="num">4</span>重点二：Skill 如何沉淀可复用的任务知识</h2>
+<p>结论先行：<b>Skill 把「每次都要重新想一遍的流程」变成「一份放在仓库里、按需取用的文件」，沉淀的是程序性知识。</b></p>
+
+<h3>4.1 沉淀路径（四步）</h3>
+<div class="mermaid">
+flowchart LR
+    P1["① 一次性提示词<br/>在对话框里现说一遍"] -->|"同类任务反复出现"| P2["② 固化为 Skill<br/>元数据+流程+输出结构+自检"]
+    P2 -->|"放进 .workbuddy/skills/"| P3["③ 进版本库<br/>有 diff、有 review、可回滚"]
+    P3 -->|"clone 即可用"| P4["④ 团队共享与迭代<br/>别人踩过的坑写进自检清单"]
+    P4 -.->|"实践中发现新问题"| P2
+</div>
+<div class="callout"><b>文字版兜底：</b>一次性提示词 → 同类任务反复出现后固化为 Skill → 提交进版本库，从此有 diff 与评审 → 他人 clone 即可复用并把踩过的坑补进自检清单 → 实践中发现新问题再回头改 Skill。</div>
+
+<h3>4.2 为什么它同时也是一种上下文管理策略</h3>
+<table>
+  <tr><th style="width:28%">做法</th><th style="width:20%">上下文开销</th><th style="width:16%">稳定性</th><th>说明</th></tr>
+  <tr><td>每次口头交代流程</td><td>每轮重复占用</td><td>低，格式会漂移</td><td>流程讨论挤占了本该留给任务材料的带宽</td></tr>
+  <tr><td>写进 Skill、按需加载</td><td>只占「名称+描述」</td><td>高，步骤固定</td><td><b>把方法论外置到上下文之外</b>，用时才注入</td></tr>
+  <tr><td>确定性动作写成脚本</td><td><b>不进上下文</b></td><td>最高，可复现</td><td>比让模型每次现场写代码更稳更省</td></tr>
+</table>
+<p>这一点很关键：<b>Skill 与上下文并不是「两个独立概念」，Skill 本身就是应对上下文有限性的一套工程解法。</b>它用「外置 + 按需加载」绕开了带宽约束。</p>
+
+<h3>4.3 与 Agent 研究中「技能库」的呼应</h3>
+<p><span class="tag t-fact">事实</span>Voyager（arXiv:2304.01552）在 2023 年就提出让 Agent 把成功执行过的动作序列存进<b>技能库</b>反复调用。今天的 Skill 机制与之思路一脉相承，区别只在于：<b>技能库由 Agent 自己积累，Skill 由人主动编写。</b>前者更自动但难审核，后者更可控且可评审——<b>当前的工程实践选择了后者</b>，这本身就是一条值得记住的判断。</p>
+
+<h3>4.4 Skill 顺带缓解了 Agent 的错误累积</h3>
+<p>回到 <a href="agent.html">agent.html</a> 第 2 节的算式：多步循环成功率近似 <code>pⁿ</code>。Skill 从两个方向压低风险：</p>
+<ol>
+  <li><b>减小 n</b>：流程固定后不必反复试错探索路径，步数下降；</li>
+  <li><b>提高 p</b>：自检清单把「容易漏的步骤」变成显式检查项，单步成功率上升。</li>
+</ol>
+<blockquote><p><span class="tag t-mine">我的判断</span>Skill 对 Agent 的价值，与其说是「让它更聪明」，不如说是「让它少走弯路」。前者做不到（模型能力没变），后者做得到且效果显著。</p></blockquote>
+</section>
+
+<!-- 5 -->
+<section id="s5">
+<h2><span class="num">5</span>同一个任务，三种配置下的差别</h2>
+<p><b>任务：把一篇 PDF 论文整理成带可核查来源的中文笔记。</b></p>
+<table>
+  <tr><th style="width:24%">配置</th><th style="width:36%">上下文里装的是什么</th><th>典型问题</th></tr>
+  <tr><td><b>A. 无 Skill 的 Agent</b></td><td>任务材料 + 反复讨论「格式应该怎样」的对话</td><td>流程讨论挤占带宽；跑到中段容易忘记最初的格式约束；每周输出格式都在飘</td></tr>
+  <tr><td><b>B. 有 Skill 的 Agent</b></td><td>任务材料 + 一条被注入的标准流程（流程本身外置在文件里）</td><td>上下文留给内容；步数减少、错误累积减轻；输出结果可复现</td></tr>
+  <tr><td><b>C. 只有 Skill，没有 Agent</b></td><td>人自己按步骤执行，模型只做单步辅助</td><td>步骤可靠但每步都要人推；无法自动跑完多轮循环</td></tr>
+</table>
+<p><b>三种配置不是互斥的，而是组合关系</b>：Skill 提供「怎么做」，Agent 提供「自己往下跑」，上下文提供「每一步看到的现场信息」。少任何一环，另外两环的价值都会打折。</p>
+</section>
+
+<!-- 6 -->
+<section id="s6">
+<h2><span class="num">6</span>我自己的整体判断（可被反驳）</h2>
+<blockquote><p><span class="tag t-mine">我的判断</span><b>上下文是硬约束，Agent 是主体，Skill 是约束之下的最优解。</b><br>
+当前这一代系统的核心矛盾是：Agent 想做的事越来越多（步数 n 上升），而上下文带宽的增长跟不上；Skill 通过「知识外置 + 按需注入」，在不增加带宽的前提下塞进了大量可用能力，因此是当下性价比最高的工程手段。<br><br>
+<b>怎么反驳我：</b>若未来出现「原生超长且无损利用的上下文」（位置效应被彻底解决、成本与时延不再是瓶颈），那么 Skill 的「省上下文」价值将大幅下降，只剩下「可版本化、可团队共享」这一半价值。<br>
+<b>反过来讲：</b>即使那一天到来，Skill 仍然不会消失——因为它解决的从来不只是带宽问题，还有<b>知识能不能沉淀、能不能被别人复用</b>的问题。</p></blockquote>
+
+<h3>概念关系自查表</h3>
+<table>
+  <tr><th style="width:70%">检查项</th><th style="width:30%">结果</th></tr>
+  <tr><td>三个概念是否各有明确定位，且互不重叠</td><td>✅</td></tr>
+  <tr><td>是否说明了上下文对 Agent 的具体影响路径</td><td>✅ 六条路径，每条附依据</td></tr>
+  <tr><td>是否说明了 Skill 如何沉淀可复用知识</td><td>✅ 四步沉淀路径 + 表格 + 与技能库呼应</td></tr>
+  <tr><td>是否给出了自己的判断与反驳路径</td><td>✅ 第 6 节</td></tr>
+  <tr><td>是否有贯穿三个概念的统一例子</td><td>✅ 第 5 节</td></tr>
+  <tr><td>所有引用的论文与文档是否可核查</td><td>✅ 见各概念页第 7 节，均于 2026-09-04 验证可访问</td></tr>
+</table>
+</section>
+
+<footer>
+  本页由项目级 Skill <code>concept-study-forge</code> 生成，经人工核查后发布。<br>
+  <span class="tag t-fact">事实</span>有外部来源支撑 · <span class="tag t-mine">我的判断</span>个人观点，可被反驳
+</footer>
+
+</div>
+<script>
+  if (window.mermaid) { mermaid.initialize({ startOnLoad: true, theme: 'default' }); }
+</script>
+</body>
+</html>
