@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>大模型的上下文 · Context · 概念学习资料</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  :root{
+    --bg:#f6f7f9; --card:#ffffff; --ink:#1f2328; --muted:#5b6570;
+    --line:#e3e7ec; --accent:#0f766e; --accent-soft:#e6f5f2;
+    --warn:#b45309; --warn-soft:#fef3c7; --ok:#0f766e; --ok-soft:#e6f5f2;
+    --code-bg:#f2f4f7;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; background:var(--bg); color:var(--ink);
+    font:16px/1.75 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;}
+  .wrap{max-width:920px; margin:0 auto; padding:32px 20px 72px}
+  header.hero{background:linear-gradient(135deg,#0f766e,#14b8a6); color:#fff;
+    border-radius:14px; padding:28px 28px 24px; margin-bottom:22px;}
+  header.hero h1{margin:0 0 6px; font-size:27px; letter-spacing:.5px}
+  header.hero .sub{opacity:.92; font-size:14.5px}
+  header.hero .meta{margin-top:14px; font-size:12.5px; opacity:.88}
+  nav.toc{background:var(--card); border:1px solid var(--line); border-radius:12px;
+    padding:14px 18px; margin-bottom:22px;}
+  nav.toc b{font-size:13px; color:var(--muted); display:block; margin-bottom:8px; letter-spacing:1px}
+  nav.toc a{display:inline-block; margin:4px 12px 4px 0; color:var(--accent); text-decoration:none; font-size:14px}
+  nav.toc a:hover{text-decoration:underline}
+  section{background:var(--card); border:1px solid var(--line); border-radius:12px;
+    padding:22px 24px; margin-bottom:18px;}
+  h2{font-size:19px; margin:0 0 14px; padding-bottom:10px; border-bottom:2px solid var(--accent-soft)}
+  h2 .num{display:inline-block; background:var(--accent); color:#fff; font-size:13px;
+    width:24px; height:24px; line-height:24px; text-align:center; border-radius:6px; margin-right:9px}
+  h3{font-size:15.5px; margin:20px 0 8px; color:#0b3d91}
+  p{margin:10px 0} ul,ol{margin:10px 0; padding-left:22px} li{margin:6px 0}
+  code{background:var(--code-bg); padding:2px 6px; border-radius:5px;
+    font:13.5px/1.5 "SFMono-Regular",Consolas,"Courier New",monospace}
+  pre{background:var(--code-bg); border:1px solid var(--line); border-radius:8px;
+    padding:12px 14px; overflow-x:auto; font:13px/1.6 "SFMono-Regular",Consolas,monospace}
+  blockquote{margin:14px 0; padding:12px 16px; background:var(--accent-soft);
+    border-left:4px solid var(--accent); border-radius:0 8px 8px 0}
+  blockquote p{margin:4px 0}
+  table{border-collapse:collapse; width:100%; margin:12px 0; font-size:14.5px}
+  th,td{border:1px solid var(--line); padding:9px 11px; text-align:left; vertical-align:top}
+  th{background:#f0f3f7; font-weight:600}
+  .tag{display:inline-block; font-size:12px; padding:1px 8px; border-radius:20px;
+    margin-right:6px; vertical-align:middle; white-space:nowrap}
+  .t-fact{background:var(--ok-soft); color:var(--ok); border:1px solid #b7e0d8}
+  .t-infer{background:#eef2ff; color:#4338ca; border:1px solid #c7d2fe}
+  .t-mine{background:var(--warn-soft); color:var(--warn); border:1px solid #fcd34d}
+  .callout{border:1px dashed var(--line); border-radius:10px; padding:12px 16px;
+    background:#fcfcfd; font-size:14.5px}
+  .callout.warn{background:var(--warn-soft); border-color:#fcd34d}
+  a{color:var(--accent)}
+  footer{color:var(--muted); font-size:13px; text-align:center; margin-top:26px}
+  @media (max-width:640px){ .wrap{padding:18px 12px 48px} header.hero{padding:20px} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <h1>大模型的上下文（Context / Context Window）</h1>
+  <div class="sub">模型这一次生成答案时，能同时看到的全部输入内容</div>
+  <div class="meta">生成工具：concept-study-forge · 深度：标准 · 背景：具备基础计算机素养的大学生 · 生成日期：2026-09-04 · 来源核验：2026-09-04</div>
+</header>
+
+<nav class="toc">
+  <b>目录</b>
+  <a href="#s1">1 一句话定义</a><a href="#s2">2 我的理解</a><a href="#s3">3 核心机制</a>
+  <a href="#s4">4 应用场景</a><a href="#s5">5 易混淆与边界</a><a href="#s6">6 最小实践</a>
+  <a href="#s7">7 可核查来源</a><a href="#s8">8 自检清单</a>
+</nav>
+
+<!-- ============ 1 ============ -->
+<section id="s1">
+<h2><span class="num">1</span>一句话定义</h2>
+<blockquote><p><b>模型这一次生成答案时，能同时看到的全部输入内容。</b></p></blockquote>
+<p>三个限定词缺一不可：<b>这一次</b>（每次调用都是一次全新的、独立的读取）、<b>同时</b>（窗口内的内容一次性参与计算，不存在"翻页回看"）、<b>全部输入</b>（系统指令、历史对话、检索到的资料、工具返回值、你刚打的问题，全都在内）。</p>
+<p><b>它不是什么：</b></p>
+<ul>
+  <li><b>不是模型的记忆力。</b>模型参数里的知识是训练时固化下来的、长期且模糊的；上下文是临时的、精确的、用完即弃的。</li>
+  <li><b>不是你能无限续写的笔记本。</b>它有硬上限，超出即被截断或拒绝。</li>
+  <li><b>不是「提示词」的同义词。</b>提示词只是往这块板子上写的内容之一。</li>
+</ul>
+</section>
+
+<!-- ============ 2 ============ -->
+<section id="s2">
+<h2><span class="num">2</span>我的理解</h2>
+
+<h3>类比：一块容量固定的白板 + 一条金鱼</h3>
+<p>模型像一条金鱼，游到哪儿都记不住上一秒的事；它唯一的"临时记忆"就是面前这块<b>白板</b>——你把所有要它看的东西写在上面，它一次性读完，然后作答。答完，板子擦干净，下一次什么都不剩。<br>
+白板有三个不讲情面的性质：<b>① 容量固定</b>；<b>② 写满了必须从最早写的那头开始擦</b>；<b>③ 写在板子正中间的内容，它最容易看漏</b>。</p>
+<div class="callout"><b>这个类比在哪一步失效：</b>人的工作记忆会主动压缩与重组（你把一章读成一句话）；模型不会，它把每个 token 原样摊在计算里。所以"人能扫一眼 200 页找到重点"这件事，模型做不到——它只能靠你提前把重点挑出来放上去。这正是 <a href="skill.html">Skill</a> 里"按需加载"思路的由来。</div>
+
+<h3>认知修正</h3>
+<blockquote><p>我原来以为上下文窗口当然是越大越好——窗口一开到几十上百万 token，直接把资料全塞进去就完事了。<br>
+查证后发现这个想法有两处硬伤：<b>其一</b>，<span class="tag t-fact">事实</span>《Lost in the Middle》这篇论文用实验证明，模型对长输入<b>中间部分</b>信息的利用能力显著弱于<b>开头和结尾</b>，呈 U 形曲线——塞得进去不等于看得见。<b>其二</b>，<span class="tag t-fact">事实</span>Anthropic 在讲上下文工程的文章里把上下文直接定义为一种<b>有限资源</b>，指出随着 token 增加，模型从中"提取正确信息"的能力会下降，存在边际收益递减。<br>
+所以正确的次序是：<b>先保证该在的片段在，再谈窗口有多大。</b></p></blockquote>
+
+<h3>一句可被反驳的判断</h3>
+<blockquote><p><span class="tag t-mine">我的判断</span><b>我认为对绝大多数实际任务而言，「上下文管理」比「上下文长度」重要得多；把窗口做大，很多时候是在用算力掩盖检索与组织能力的不足。</b><br>
+理由：<span class="tag t-infer">推断</span>窗口解决的是"能不能装下"，位置效应和噪声稀释决定的是"能不能用上"；前者是容量问题、可以靠钱堆，后者是结构问题、只能靠设计。当检索准确、内容有序时，小窗口往往反而更快更准。<br>
+<b>反驳我的方式：</b>在需要全局一致理解的任务上（通读整本法律合同找前后矛盾、通读整个代码库做重构），局部检索会漏掉跨段落的隐含关联，此时大窗口不可替代。所以更准确的说法是——<b>大窗口买的是"不遗漏"的保险，而不是"更聪明"的保证</b>。</p></blockquote>
+</section>
+
+<!-- ============ 3 ============ -->
+<section id="s3">
+<h2><span class="num">3</span>核心机制</h2>
+
+<h3>3.1 一次调用里，上下文由什么拼成</h3>
+<div class="mermaid">
+flowchart TB
+    A["系统指令 System Prompt<br/>常驻规则 / 人设 / 输出格式"] --> E
+    B["对话历史<br/>之前的多轮问答"] --> E
+    C["外部注入内容<br/>RAG 检索片段 / 工具返回值 / 文件内容"] --> E
+    D["当前输入<br/>用户这一次的问题"] --> E
+    E["拼接成一个 token 序列<br/>长度 = A+B+C+D"] --> F["模型一次性读入并计算"]
+    F --> G["生成输出（同样占用窗口额度）"]
+    G -.->|"若继续多轮：输出又变成下一轮的 B"| B
+</div>
+<div class="callout"><b>文字版兜底：</b>系统指令、历史对话、外部注入的资料、当前问题，四部分拼成一长串 token 交给模型；模型读完生成答案，而<b>生成的答案本身也占用同一个窗口额度</b>；进入下一轮时，上一轮的答案又变成"历史对话"被重新读一遍——这就是多轮对话里 token 消耗快速增长的原因。</div>
+
+<h3>3.2 技术层：四件事决定它怎么工作</h3>
+<table>
+  <tr><th style="width:22%">机制</th><th>说明</th><th style="width:26%">对使用者的实际影响</th></tr>
+  <tr>
+    <td><b>分词 Tokenization</b></td>
+    <td>文本先被切成 token 再计算。<span class="tag t-fact">事实</span>分词是 Transformer 架构的输入前提</td>
+    <td><b>字数 ≠ token 数</b>。中文尤其容易低估，计费按 token 不按字</td>
+  </tr>
+  <tr>
+    <td><b>注意力 Attention</b></td>
+    <td><span class="tag t-fact">事实</span>Transformer 的核心是自注意力：每个位置与序列中其他位置计算关联度</td>
+    <td>关联度是"摊薄"的——干扰内容越多，真正关键的内容分到的注意力越少</td>
+  </tr>
+  <tr>
+    <td><b>KV Cache</b></td>
+    <td>把已算过的 Key/Value 缓存复用，避免每生成一个 token 就重算全部历史</td>
+    <td><b>前缀不变</b>就能命中缓存 → 稳定不变的内容放前面更省更快</td>
+  </tr>
+  <tr>
+    <td><b>位置编码与长度外推</b></td>
+    <td><span class="tag t-fact">事实</span>位置插值等方法用于让模型处理超出训练长度的输入（arXiv:2306.15595）</td>
+    <td>窗口数字是工程外推的结果，<b>标称长度 ≠ 全程都好用</b></td>
+  </tr>
+</table>
+
+<h3>3.3 关键变量</h3>
+<table>
+  <tr><th style="width:24%">变量</th><th>为什么它决定成败</th></tr>
+  <tr><td><b>窗口上限</b></td><td>输入与输出共享同一额度，很多"超限"其实是输出空间不够</td></tr>
+  <tr><td><b>位置效应</b></td><td>开头 / 结尾利用率高，中间弱（U 形曲线）→ 关键信息不要埋在中间</td></tr>
+  <tr><td><b>缓存命中率</b></td><td><span class="tag t-fact">事实</span>Anthropic 官方的提示缓存机制复用不变前缀，显著降低成本与延迟 → 内容顺序一变，缓存就废</td></tr>
+  <tr><td><b>噪声比</b></td><td>无关内容占比越高，有效信息被稀释得越厉害</td></tr>
+  <tr><td><b>输出预留</b></td><td>留多少额度给生成，决定答案会不会被截断</td></tr>
+</table>
+</section>
+
+<!-- ============ 4 ============ -->
+<section id="s4">
+<h2><span class="num">4</span>一个具体应用场景</h2>
+<h3>用一本 200 页产品手册做保修条款问答</h3>
+<ul>
+  <li><b>输入：</b>一本约 15 万字的产品手册 + 用户问题「保修期多久？人为损坏算不算？」。</li>
+  <li><b>方案 A（长窗口硬塞）：</b>整本手册进上下文 → 模型自己找 → 作答。</li>
+  <li><b>方案 B（检索后注入）：</b>先按段落切分建索引 → 检索出「保修期限」「免责条款」「人为损坏界定」三个片段 → 拼进上下文 → 作答，并要求标注引用位置。</li>
+  <li><b>输出：</b>「整机保修 12 个月，人为损坏不在保修范围内（依据：手册 4.2 节 / 7.1 节）」。</li>
+  <li><b>失败会怎样：</b></li>
+</ul>
+<table>
+  <tr><th style="width:16%">方案</th><th>典型失败</th><th style="width:34%">为什么会失败</th></tr>
+  <tr><td><b>A 长窗口</b></td><td>答错或答非所问，而且语气很肯定</td><td>保修条款若落在手册中部，正处在 U 形曲线谷底，模型"看得见但没用上"；同时每次问答都要付整本的算力成本</td></tr>
+  <tr><td><b>B 检索注入</b></td><td>编造一个不存在的保修期，同样语气肯定</td><td>检索没命中正确片段时，上下文里<b>根本没有依据</b>，模型不会说"我不知道"，而会按语言习惯补全——这是幻觉的主要来源</td></tr>
+</table>
+<div class="callout warn"><b>这个对比说明什么：</b>两种方案会失败在<b>不同的地方</b>。长窗口败在"用不上"，检索注入败在"没找着"。所以工程上的标准做法是：<b>检索保证内容对 + 重排保证位置对 + 引用标注保证可核查</b>，而不是单纯把窗口开大。</div>
+</section>
+
+<!-- ============ 5 ============ -->
+<section id="s5">
+<h2><span class="num">5</span>容易混淆的问题与使用边界</h2>
+
+<h3>5.1 易混淆对照</h3>
+<table>
+  <tr><th style="width:22%">混淆对</th><th style="width:38%">区别</th><th>判别法</th></tr>
+  <tr><td><b>上下文 vs 参数知识</b></td><td>上下文＝临时工作记忆，用完即弃；参数知识＝训练固化的长期记忆，模糊且可能过时</td><td>换个新会话再问一次：还能答出来的是参数知识，答不出来的是靠上下文</td></tr>
+  <tr><td><b>上下文窗口 vs 上下文工程</b></td><td>前者是容量指标（能装多少 token）；后者是"往里装什么、按什么顺序装、什么时候清掉"的方法论</td><td>窗口是硬件指标，工程是使用方法——买更大的板子不等于会写字</td></tr>
+  <tr><td><b>上下文 vs 提示词</b></td><td>提示词是写进上下文的内容之一；上下文还包括历史、检索结果、工具返回值</td><td>问一句：这些东西里，哪些不是你亲手敲的？</td></tr>
+  <tr><td><b>token vs 字数</b></td><td>token 是模型切分后的单位，与字数无固定换算比</td><td>用分词器数一遍，中文常见情况是 1 字接近 1 token 甚至更多</td></tr>
+  <tr><td><b>KV Cache vs 提示缓存</b></td><td>KV Cache 是单次生成内部复用已算结果；提示缓存是跨次调用复用不变前缀</td><td>前者省的是同一次生成里的重复计算，后者省的是多次调用之间的重复计算</td></tr>
+</table>
+
+<h3>5.2 使用边界（什么时候不该指望它）</h3>
+<ol>
+  <li><b>需要跨会话记住用户时，别指望上下文。</b>它随会话结束而消失，必须落盘到文件或数据库，下次再注入。</li>
+  <li><b>超长输入下别指望指令遵循能力不打折。</b><span class="tag t-fact">事实</span>Anthropic 明确指出上下文存在边际收益递减——信息越多，模型从中提取正确信息的能力越低。</li>
+  <li><b>成本与时延敏感的高频场景，别无脑堆长上下文。</b>注意力开销随长度增长，长输入意味着更慢、更贵。</li>
+  <li><b>别把敏感信息随手放进上下文。</b>一旦进入，它就会离开你的可控边界，出现在服务方的请求日志里。</li>
+  <li><b>接近上限时要主动确认是否被静默截断。</b>有些实现会截断而非报错，导致模型只看到了一半材料还照答不误。</li>
+</ol>
+</section>
+
+<!-- ============ 6 ============ -->
+<section id="s6">
+<h2><span class="num">6</span>最小实践（15 分钟，不需要 API Key）</h2>
+
+<h3>实践一：亲手验证「字数 ≠ token 数」</h3>
+<pre><code># pip install tiktoken
+import tiktoken
+
+enc = tiktoken.get_encoding("cl100k_base")
+samples = [
+    "大模型的上下文窗口决定了它一次能看多少内容。",
+    "The context window determines how much a model can see at once.",
+    "def add(a, b): return a + b",
+]
+for s in samples:
+    print(f"字符数={len(s):3d}  token数={len(enc.encode(s)):3d}  | {s[:28]}")</code></pre>
+<p>你会看到中英文、代码的换算比完全不同。这一步的意义：<b>以后看到"支持 XX 万 token"时，你能立刻换算成"大约多少页中文"。</b></p>
+
+<h3>实践二：亲自复现 Lost in the Middle 的位置效应</h3>
+<p>拿任意聊天产品，准备三段材料：</p>
+<ul>
+  <li>一段"正确答案"（例如：某产品的保修期是 18 个月）</li>
+  <li>五段与之无关的材料（随便什么长文本）</li>
+  <li>一个固定的问题（「保修期多久？」）</li>
+</ul>
+<p>然后把"正确答案"分别放在 <b>① 最前面 ② 正中间 ③ 最后面</b>，各问一次，记录三次回答。<br>
+重复做几组，你大概率会观察到 <b>① 和 ③ 答对率明显高于 ②</b>。这就是论文里那条 U 形曲线的个人版本。</p>
+<div class="callout"><b>做完这两个实践再看第 3.3 节的关键变量表</b>，"位置效应"就不再是一句结论，而是你亲手做出来的现象。</div>
+</section>
+
+<!-- ============ 7 ============ -->
+<section id="s7">
+<h2><span class="num">7</span>可核查来源</h2>
+<p>全部链接在 <b>2026-09-04</b> 用 <code>curl -o /dev/null -w "%{http_code}"</code> 逐条验证，返回 200 才保留；因本机网络不可达而无法验证的链接已弃用。</p>
+<table>
+  <tr><th style="width:16%">类型</th><th style="width:34%">来源</th><th>我引用了它的什么</th><th style="width:12%">核验</th></tr>
+  <tr>
+    <td><b>一手</b><br>发布方工程博客</td>
+    <td>Anthropic《Effective context engineering for AI agents》<br><a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents" target="_blank">anthropic.com/engineering/effective-context-engineering-for-ai-agents</a></td>
+    <td>把上下文定位为"有限资源"；token 增加导致提取能力下降的边际收益递减现象</td>
+    <td>200 ✅</td>
+  </tr>
+  <tr>
+    <td><b>一手</b><br>原始论文</td>
+    <td>Lost in the Middle: How Language Models Use Long Contexts (arXiv:2307.03172)<br><a href="https://arxiv.org/abs/2307.03172" target="_blank">arxiv.org/abs/2307.03172</a></td>
+    <td>U 形位置效应：对长输入中间部分信息利用能力弱于首尾，是本页核心论断的直接依据</td>
+    <td>200 ✅</td>
+  </tr>
+  <tr>
+    <td><b>一手</b><br>奠基性论文</td>
+    <td>Attention Is All You Need (arXiv:1706.03762)<br><a href="https://arxiv.org/abs/1706.03762" target="_blank">arxiv.org/abs/1706.03762</a></td>
+    <td>自注意力机制的出处，解释"注意力会被摊薄"这一机制性原因</td>
+    <td>200 ✅</td>
+  </tr>
+  <tr>
+    <td><b>一手</b><br>原始论文</td>
+    <td>Retrieval-Augmented Generation (arXiv:2005.11401)<br><a href="https://arxiv.org/abs/2005.11401" target="_blank">arxiv.org/abs/2005.11401</a></td>
+    <td>「先检索再注入上下文」这一替代路径的源头，用于第 4 节方案 B</td>
+    <td>200 ✅</td>
+  </tr>
+  <tr>
+    <td><b>一手</b><br>原始论文</td>
+    <td>Longformer (arXiv:2004.05150)<br><a href="https://arxiv.org/abs/2004.05150" target="_blank">arxiv.org/abs/2004.05150</a></td>
+    <td>稀疏注意力：说明"长上下文"是靠架构改造换来的，天然存在取舍</td>
+    <td>200 ✅</td>
+  </tr>
+  <tr>
+    <td><b>一手</b><br>原始论文</td>
+    <td>Extending Context Window via Position Interpolation (arXiv:2306.15595)<br><a href="https://arxiv.org/abs/2306.15595" target="_blank">arxiv.org/abs/2306.15595</a></td>
+    <td>长度外推方法，支撑"标称窗口长度是工程外推结果"这一说法</td>
+    <td>200 ✅</td>
+  </tr>
+  <tr>
+    <td><b>一手</b><br>官方文档</td>
+    <td>Anthropic《Prompt caching》<br><a href="https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching" target="_blank">docs.anthropic.com/en/docs/build-with-claude/prompt-caching</a></td>
+    <td>不变前缀可缓存复用以降本降时延，支撑"内容顺序影响成本"这一变量</td>
+    <td>200 ✅</td>
+  </tr>
+</table>
+<p style="font-size:14px;color:var(--muted)">注：1706.03762（2017）、2005.11401（2020）、2004.05150（2020）为奠基性文献，用于解释机制起源；对当前上下文工程实践的判断以 Anthropic 2025 年的官方文章为准。</p>
+</section>
+
+<!-- ============ 8 ============ -->
+<section id="s8">
+<h2><span class="num">8</span>自检清单</h2>
+<table>
+  <tr><th style="width:8%">#</th><th style="width:52%">红线</th><th style="width:12%">结果</th><th>处理方式</th></tr>
+  <tr><td>1</td><td>边界清晰：既写了「是」，也写了「不是」</td><td>✅</td><td>第 1 节列了 3 条「不是什么」</td></tr>
+  <tr><td>2</td><td>全部外链生成当日验证可访问</td><td>✅</td><td>7 条全部 200</td></tr>
+  <tr><td>3</td><td>无编造的 URL / 数字 / 论文标题</td><td>✅</td><td>刻意不写具体模型的窗口数字（易变且难以核实），改用机制描述</td></tr>
+  <tr><td>4</td><td>来源 ≥3，一手 ≥1，覆盖 ≥2 个机构</td><td>✅</td><td>7 条全为一手；含 Anthropic、arXiv 多篇不同作者</td></tr>
+  <tr><td>5</td><td>至少 1 个具体场景，写清失败后果</td><td>✅</td><td>第 4 节对比两种方案各自的失败模式</td></tr>
+  <tr><td>6</td><td>≥3 条易混淆点、≥2 条使用边界</td><td>✅</td><td>5 条对照 + 5 条边界</td></tr>
+  <tr><td>7</td><td>「我的理解」里有一句可被反驳的判断</td><td>✅</td><td>「上下文管理比上下文长度重要」，并自己补上了反驳路径</td></tr>
+  <tr><td>8</td><td>事实 / 推断 / 判断三类陈述已区分</td><td>✅</td><td>全文使用三种彩色标签，推断部分写明推理链</td></tr>
+  <tr><td>9</td><td>术语首次出现有解释</td><td>✅</td><td>token、KV Cache、RAG、长度外推等首现均有说明</td></tr>
+  <tr><td>10</td><td>页面可直开，图表有文字兜底</td><td>✅</td><td>Mermaid 图下方附等价文字版</td></tr>
+  <tr><td>11</td><td>通读一遍能讲给同背景同学听懂</td><td>✅</td><td>以「白板 + 金鱼」类比为主线贯穿全文</td></tr>
+</table>
+<div class="callout">
+<b>人工核查记录：</b>
+<ul style="margin:6px 0">
+  <li>初稿中"窗口越大越好"的倾向被修正，改为区分"容量问题"与"结构问题"，并补上 U 形曲线依据。</li>
+  <li>删掉了初稿里几个具体模型的上下文长度数字——这类数字更新极快，写入即过期，且难以逐一核实。</li>
+  <li>「20 万 token ≈ 多少字」这类换算初稿直接给了数值，已改为在第 6 节让读者用分词器自己测，避免给出无来源的比例。</li>
+  <li>第 4 节原本只写了"长窗口方案"，补上了"检索注入方案"的独立失败模式，避免只呈现单一路径。</li>
+</ul>
+</div>
+</section>
+
+<footer>
+  本页由项目级 Skill <code>concept-study-forge</code> 生成，经人工核查后发布。<br>
+  <span class="tag t-fact">事实</span>有外部来源支撑 ·
+  <span class="tag t-infer">推断</span>基于事实的推理 ·
+  <span class="tag t-mine">我的判断</span>个人观点，可被反驳
+</footer>
+
+</div>
+<script>
+  if (window.mermaid) { mermaid.initialize({ startOnLoad: true, theme: 'default' }); }
+</script>
+</body>
+</html>

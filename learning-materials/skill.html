@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Skill · 技能 / 技能包 · 概念学习资料</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  :root{
+    --bg:#f6f7f9; --card:#ffffff; --ink:#1f2328; --muted:#5b6570;
+    --line:#e3e7ec; --accent:#7c3aed; --accent-soft:#f0e9fe;
+    --warn:#b45309; --warn-soft:#fef3c7; --ok:#0f766e; --ok-soft:#e6f5f2;
+    --code-bg:#f2f4f7;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; background:var(--bg); color:var(--ink);
+    font:16px/1.75 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;}
+  .wrap{max-width:920px; margin:0 auto; padding:32px 20px 72px}
+  header.hero{background:linear-gradient(135deg,#7c3aed,#a78bfa); color:#fff;
+    border-radius:14px; padding:28px 28px 24px; margin-bottom:22px;}
+  header.hero h1{margin:0 0 6px; font-size:27px; letter-spacing:.5px}
+  header.hero .sub{opacity:.92; font-size:14.5px}
+  header.hero .meta{margin-top:14px; font-size:12.5px; opacity:.88}
+  nav.toc{background:var(--card); border:1px solid var(--line); border-radius:12px;
+    padding:14px 18px; margin-bottom:22px;}
+  nav.toc b{font-size:13px; color:var(--muted); display:block; margin-bottom:8px; letter-spacing:1px}
+  nav.toc a{display:inline-block; margin:4px 12px 4px 0; color:var(--accent); text-decoration:none; font-size:14px}
+  nav.toc a:hover{text-decoration:underline}
+  section{background:var(--card); border:1px solid var(--line); border-radius:12px;
+    padding:22px 24px; margin-bottom:18px;}
+  h2{font-size:19px; margin:0 0 14px; padding-bottom:10px; border-bottom:2px solid var(--accent-soft)}
+  h2 .num{display:inline-block; background:var(--accent); color:#fff; font-size:13px;
+    width:24px; height:24px; line-height:24px; text-align:center; border-radius:6px; margin-right:9px}
+  h3{font-size:15.5px; margin:20px 0 8px; color:#0b3d91}
+  p{margin:10px 0} ul,ol{margin:10px 0; padding-left:22px} li{margin:6px 0}
+  code{background:var(--code-bg); padding:2px 6px; border-radius:5px;
+    font:13.5px/1.5 "SFMono-Regular",Consolas,"Courier New",monospace}
+  pre{background:var(--code-bg); border:1px solid var(--line); border-radius:8px;
+    padding:12px 14px; overflow-x:auto; font:13px/1.6 "SFMono-Regular",Consolas,monospace}
+  blockquote{margin:14px 0; padding:12px 16px; background:var(--accent-soft);
+    border-left:4px solid var(--accent); border-radius:0 8px 8px 0}
+  blockquote p{margin:4px 0}
+  table{border-collapse:collapse; width:100%; margin:12px 0; font-size:14.5px}
+  th,td{border:1px solid var(--line); padding:9px 11px; text-align:left; vertical-align:top}
+  th{background:#f0f3f7; font-weight:600}
+  .tag{display:inline-block; font-size:12px; padding:1px 8px; border-radius:20px;
+    margin-right:6px; vertical-align:middle; white-space:nowrap}
+  .t-fact{background:var(--ok-soft); color:var(--ok); border:1px solid #b7e0d8}
+  .t-infer{background:#eef2ff; color:#4338ca; border:1px solid #c7d2fe}
+  .t-mine{background:var(--warn-soft); color:var(--warn); border:1px solid #fcd34d}
+  .callout{border:1px dashed var(--line); border-radius:10px; padding:12px 16px;
+    background:#fcfcfd; font-size:14.5px}
+  .callout.warn{background:var(--warn-soft); border-color:#fcd34d}
+  a{color:var(--accent)}
+  footer{color:var(--muted); font-size:13px; text-align:center; margin-top:26px}
+  @media (max-width:640px){ .wrap{padding:18px 12px 48px} header.hero{padding:20px} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <h1>Skill（技能 / 技能包）</h1>
+  <div class="sub">把做某件事的成熟方法写成文件，让 AI 在需要时自己翻出来照着做</div>
+  <div class="meta">生成工具：concept-study-forge · 深度：标准 · 背景：具备基础计算机素养的大学生 · 生成日期：2026-09-04 · 来源核验：2026-09-04</div>
+</header>
+
+<nav class="toc">
+  <b>目录</b>
+  <a href="#s1">1 一句话定义</a><a href="#s2">2 我的理解</a><a href="#s3">3 核心机制</a>
+  <a href="#s4">4 应用场景</a><a href="#s5">5 易混淆与边界</a><a href="#s6">6 最小实践</a>
+  <a href="#s7">7 可核查来源</a><a href="#s8">8 自检清单</a>
+</nav>
+
+<!-- ============ 1 ============ -->
+<section id="s1">
+<h2><span class="num">1</span>一句话定义</h2>
+<blockquote><p><b>把做某件事的成熟方法写成文件，让 AI 在需要时自己翻出来照着做。</b></p></blockquote>
+<p><span class="tag t-fact">事实</span>在当下的工程实现里（以 Anthropic 的 Agent Skills 为代表），一个 Skill 的最小形态是<b>一个文件夹 + 一份带 YAML 元数据的 <code>SKILL.md</code></b>；除说明文件外，还可以打包脚本、模板和参考文档，供模型按需取用。</p>
+<p><b>它不是什么：</b></p>
+<ul>
+  <li><b>不是一段保存下来的提示词。</b>提示词是一次性的输入，Skill 是带目录、带资源、可版本管理的制品。</li>
+  <li><b>不是给模型装新知识。</b>它不改模型权重，也不检索知识库，注入的是<b>做事的流程</b>。</li>
+  <li><b>不是自动执行的程序。</b>它更像作业指导书，仍然由大模型来阅读和执行——除非里面附带了可运行脚本。</li>
+</ul>
+</section>
+
+<!-- ============ 2 ============ -->
+<section id="s2">
+<h2><span class="num">2</span>我的理解</h2>
+
+<h3>类比：餐厅墙上的 SOP 活页夹</h3>
+<p>大模型像一个聪明但刚入职、不了解本店规矩的员工。你可以每次口头交代一遍（= 写提示词），也可以把规矩写进墙上的<b>活页夹</b>，谁来上班自己翻（= 写 Skill）。这个活页夹设计得很讲究：</p>
+<ul>
+  <li><b>封面目录只有一行字</b>——「客户投诉怎么处理」，一眼能扫完；</li>
+  <li><b>翻到那一页才是详细步骤</b>；</li>
+  <li><b>最后才是附录表格</b>——话术模板、退款金额对照表，用得着才翻。</li>
+</ul>
+<p>这三层结构不是随手设计的，它正好对应上下文这个稀缺资源：<b>目录常驻，正文按需，附录随用随取。</b></p>
+<div class="callout"><b>这个类比在哪一步失效：</b>人读 SOP 会理解背后的意图，写得含糊也能自行补全；模型只是"照着字做"——步骤含糊，它会跑出<b>很自信的错误</b>。所以给机器看的作业指导书，必须比给人看的更死板、更啰嗦、更多判据。这也是为什么我给自己写的 Skill 里会专门放一条"自检清单"。</div>
+
+<h3>认知修正</h3>
+<blockquote><p>我原来以为 Skill 就是"把常用提示词存起来下次复用"。<br>
+查证后发现，至少有三点被我漏掉了：<br>
+<b>① 它是文件夹，不是字符串。</b><span class="tag t-fact">事实</span>官方文档定义的 Skill 是包含 <code>SKILL.md</code> 及可选脚本、模板、参考文档的目录结构，而不只是一段文本。<br>
+<b>② 它按需加载。</b><span class="tag t-fact">事实</span>官方把这种机制叫<b>渐进式披露（progressive disclosure）</b>：会话开始时只有 Skill 的 <code>name</code> 和 <code>description</code> 被读入上下文，判断相关后才加载正文，配套的脚本与参考文档更是只在需要时才读取——脚本甚至可以直接执行而不占用上下文。<br>
+<b>③ 触发是模型自己判断的。</b><code>description</code> 写得准不准，直接决定该用的时候会不会被想起来。</p></blockquote>
+
+<h3>一句可被反驳的判断</h3>
+<blockquote><p><span class="tag t-mine">我的判断</span><b>我认为 Skill 真正的价值不在"省下几句提示词"，而在于把 AI 的行为从"聊天框里的即兴发挥"变成了可版本化、可评审、可团队共享的工程制品。</b><br>
+理由：<span class="tag t-infer">推断</span>省提示词只是效率问题，而一旦方法论变成仓库里的文件，它就有了 diff、有了 review、有了迭代历史，团队里别人犯过的错可以一次性地沉淀进去、不再重犯——这一点是提示词复用做不到的。<br>
+<b>反驳我的方式：</b>如果只是个人偶尔做一次的任务，写规范 Skill（元数据 + 适用场景 + 流程 + 输出结构 + 自检）的成本明显高于直接说一句需求，此时"即兴发挥"更划算。所以 Skill 的适用前提是<b>同类任务会反复出现，或需要多人共用同一套标准</b>。</p></blockquote>
+</section>
+
+<!-- ============ 3 ============ -->
+<section id="s3">
+<h2><span class="num">3</span>核心机制</h2>
+
+<h3>3.1 一个 Skill 由什么组成</h3>
+<table>
+  <tr><th style="width:24%">组成</th><th>内容</th><th style="width:26%">什么时候被读进上下文</th></tr>
+  <tr><td><b>YAML 元数据</b></td><td><code>name</code> + <code>description</code>（必填），可加版本、标签等</td><td><b>始终常驻</b>——这是它被想起来的唯一入口</td></tr>
+  <tr><td><b>正文</b></td><td>适用场景、输入、步骤、输出结构、来源要求、自检要求</td><td>判断相关之后才加载</td></tr>
+  <tr><td><b>附带资源</b></td><td><code>templates/</code>、<code>scripts/</code>、<code>references/</code></td><td>用到才读；脚本可直接执行，<b>不占上下文</b></td></tr>
+</table>
+
+<h3>3.2 加载机制：渐进式披露（三层）</h3>
+<div class="mermaid">
+flowchart LR
+    subgraph L1["第 1 层 · 常驻上下文"]
+        A["name + description<br/>（每个 Skill 只占几十个 token）"]
+    end
+    subgraph L2["第 2 层 · 命中才加载"]
+        B["SKILL.md 正文<br/>适用场景 / 步骤 / 输出结构 / 自检"]
+    end
+    subgraph L3["第 3 层 · 用到才读取"]
+        C["references/ 参考文档"]
+        D["templates/ 模板"]
+        E["scripts/ 脚本 → 直接执行，不进上下文"]
+    end
+    Q["用户请求"] --> A
+    A -- "描述匹配 → 触发" --> B
+    B -- "需要细节时" --> C
+    B -- "需要格式时" --> D
+    B -- "需要确定性动作时" --> E
+</div>
+<div class="callout"><b>文字版兜底：</b>第一层，所有 Skill 的名称与描述常驻模型上下文，成本极低，作用是"让模型知道有这门手艺"；第二层，模型判断当前任务与某条描述匹配，才把该 Skill 的正文读进来；第三层，正文里若指向参考文档、模板或脚本，则在执行过程中按需读取——脚本直接运行，连上下文都不占。<b>整个设计的目的只有一个：在有限的上下文里塞进尽可能多的可用能力。</b></div>
+
+<h3>3.3 关键变量</h3>
+<table>
+  <tr><th style="width:24%">变量</th><th>为什么它决定成败</th></tr>
+  <tr><td><b>description 的写法</b></td><td>写太窄 → 该用时想不起来；写太宽 → 无关任务被误触发。<span class="tag t-fact">事实</span>官方工具写作指南同样强调：描述要写清"什么时候该用、什么时候不该用"</td></tr>
+  <tr><td><b>粒度</b></td><td>一个 Skill 只做一类事。把三件事塞进一个 Skill，等于三个都触发不准</td></tr>
+  <tr><td><b>正文长度</b></td><td>正文一旦被加载就真金白银地占上下文；细节应下沉到 <code>references/</code></td></tr>
+  <tr><td><b>是否附带可执行脚本</b></td><td>确定性动作交给脚本，比让模型每次现场写代码更稳、更省、更可复现</td></tr>
+  <tr><td><b>是否写自检清单</b></td><td><span class="tag t-mine">我的判断</span>这是我认为最容易被忽略、但对质量下限影响最大的一项——没有自检的 Skill，输出质量完全取决于模型当天状态</td></tr>
+</table>
+</section>
+
+<!-- ============ 4 ============ -->
+<section id="s4">
+<h2><span class="num">4</span>一个具体应用场景</h2>
+<h3>每周把一篇论文 PDF 整理成固定格式的中文笔记</h3>
+<ul>
+  <li><b>不写 Skill 的做法：</b>每周在对话框里重新交代一遍——"要中文、要八节结构、来源必须可访问、要有我自己的理解"。结果是<b>每周格式都在飘</b>，而且一旦漏说一条要求，那周的笔记就缺一块。</li>
+  <li><b>写成 Skill 的做法：</b>建 <code>.workbuddy/skills/paper-note/SKILL.md</code>，把输入（PDF 路径）、步骤（抽结构 → 提炼 → 按模板输出 → 自检来源）、输出（固定八节）、自检（外链必须当日验活）全部写死，并把排版模板放进 <code>templates/</code>。</li>
+  <li><b>输入：</b>一篇新 PDF 的路径。</li>
+  <li><b>过程：</b>模型看到"整理论文笔记"的请求 → 匹配到 <code>paper-note</code> 的描述 → 加载正文 → 按步骤执行 → 套用模板输出。</li>
+  <li><b>输出：</b>与上周格式完全一致的笔记 + 来源核验表。</li>
+  <li><b>失败会怎样：</b>三种典型的失败——</li>
+</ul>
+<table>
+  <tr><th style="width:24%">失败模式</th><th>表现</th><th style="width:32%">根因</th></tr>
+  <tr><td><b>该触发没触发</b></td><td>模型完全没想起有这个 Skill，自己自由发挥</td><td><code>description</code> 写得太窄，没覆盖用户实际会用的问法</td></tr>
+  <tr><td><b>触发了但不照做</b></td><td>读了正文，输出却还是老样子</td><td>步骤写成了"要注意格式要规范"这类抽象要求，缺少可判定的具体动作</td></tr>
+  <tr><td><b>静默过时</b></td><td>某天开始莫名失败</td><td>Skill 依赖的外部工具/接口变了，而文件还停留在旧版本</td></tr>
+</table>
+<div class="callout warn"><b>这个场景最值得记的一句：</b>Skill 沉淀的是<b>流程</b>，不是结果。它保证的是"每次都按同一套可靠步骤走"，而不是"每次都能得到正确答案"——后者还得靠自检清单兜底。</div>
+</section>
+
+<!-- ============ 5 ============ -->
+<section id="s5">
+<h2><span class="num">5</span>容易混淆的问题与使用边界</h2>
+
+<h3>5.1 易混淆对照</h3>
+<table>
+  <tr><th style="width:22%">混淆对</th><th style="width:38%">区别</th><th>判别法</th></tr>
+  <tr><td><b>Skill vs 提示词</b></td><td>提示词是一次性的输入；Skill 是带目录结构、可版本管理、按需加载的制品</td><td>问：它有 diff 吗？能 git 提交、能让同学 clone 下来用吗？</td></tr>
+  <tr><td><b>Skill vs 工具 / MCP</b></td><td><span class="tag t-fact">事实</span>MCP 解决的是"能连上什么"（数据与服务的连接协议）；Skill 解决的是"拿到能力后该怎么干"</td><td>把 Skill 删掉，工具照样能连；把 MCP 删掉，Skill 里的步骤无处施展</td></tr>
+  <tr><td><b>Skill vs 微调 / RAG</b></td><td>微调改权重、RAG 检索知识；Skill 都不做，它注入的是<b>程序性知识</b>（怎么做）</td><td>问：它教的是"知道什么"还是"怎么一步步做"？</td></tr>
+  <tr><td><b>Skill vs 记忆</b></td><td>Skill 是人主动写、稳定不变的方法论；记忆是系统自动积累、会随交互变化的事实</td><td>问：这条内容改一次要发版吗？要的＝Skill</td></tr>
+  <tr><td><b>Skill vs Workflow</b></td><td>Workflow 是执行路径本身；Skill 是被路径调用的"能力包"</td><td>Workflow 说"先 A 后 B"，Skill 说"A 这件事怎么做"</td></tr>
+</table>
+<p style="font-size:14px;color:var(--muted)">「程序性知识（knowledge-how）」这一哲学区分，可参见《斯坦福哲学百科》"Knowledge-how" 条目——它把"知道怎么做"与"知道某事实"明确分开，正好对应 Skill 与 RAG 的分工。</p>
+
+<h3>5.2 使用边界（什么时候不该写 Skill）</h3>
+<ol>
+  <li><b>只做一次的任务。</b>写规范 Skill 的成本高于直接提需求。</li>
+  <li><b>指望它补领域知识。</b>Skill 教流程，不教事实；事实要来自可核查来源（见 <a href="llm-context.html">上下文</a> 一页）。</li>
+  <li><b>依赖外部工具却无人维护。</b>接口一变，Skill 就静默失效，而且失效时往往不报错。</li>
+  <li><b>把密钥、个人隐私写进 Skill。</b>它会被提交进仓库、被读进上下文——<b> Skills 里只能放方法，不能放凭据。</b></li>
+  <li><b>把它当成质量保证。</b>Skill 保证的是过程一致；要兜住输出质量，得靠 Skill 内部那条自检清单。</li>
+</ol>
+</section>
+
+<!-- ============ 6 ============ -->
+<section id="s6">
+<h2><span class="num">6</span>最小实践（15 分钟）</h2>
+<h3>亲手建一个最小可用 Skill，并测它的触发</h3>
+<pre><code># 1. 建目录（项目级 Skill 的位置）
+mkdir -p .workbuddy/skills/my-first-skill
+
+# 2. 写最小骨架（把下面内容存成 SKILL.md）
+cat &gt; .workbuddy/skills/my-first-skill/SKILL.md &lt;&lt;'EOF'
+---
+name: my-first-skill
+description: 把一段长文本压缩成 5 条要点。当用户说「总结一下」「提炼要点」「太长了我只看重点」时使用。不适合需要保留精确数字的场合。
+---
+
+# 我的第一个 Skill
+
+## 适用场景
+用户给了长文本，想要 5 条以内的要点。
+
+## 输入
+- text：待压缩的长文本（必填）
+- language：输出语言（默认中文）
+
+## 步骤
+1. 通读全文，标出 3-5 个信息密度最高的句子
+2. 每条要点不超过 30 字，写成完整句子
+3. 检查：5 条里有没有两条在说同一件事？有就合并
+
+## 输出结构
+1. 一句话总括
+2. 五条要点（编号列表）
+3. 被舍弃的信息类型（一句话说明丢了什么）
+
+## 自检
+- [ ] 要点 ≤5 条，每条 ≤30 字
+- [ ] 没有两条重复
+- [ ] 明确写出了"丢了什么"
+EOF</code></pre>
+<h3>然后做触发实验（这一步才是关键）</h3>
+<p>用三种不同的说法去问同一个需求，看它会不会自动被想起来：</p>
+<ol>
+  <li>「帮我总结一下这段话」→ 预期：触发</li>
+  <li>「这段话太长了，我只想知道重点」→ 预期：触发</li>
+  <li>「这段话一共有多少个字？」→ 预期：<b>不触发</b>（如果也触发了，说明 description 写太宽）</li>
+</ol>
+<div class="callout"><b>做完这个实验你会明白：</b>Skill 里最难写、也最重要的两行，是 YAML 里的 <code>name</code> 和 <code>description</code>——其余内容写得再好，触发不了就等于不存在。</div>
+</section>
+
+<!-- ============ 7 ============ -->
+<section id="s7">
+<h2><span class="num">7</span>可核查来源</h2>
+<p>全部链接在 <b>2026-09-04</b> 用 <code>curl -o /dev/null -w "%{http_code}"</code> 逐条验证，返回 200 才保留；因本机网络不可达而无法验证的链接已弃用。</p>
+<table>
+  <tr><th style="width:16%">类型</th><th style="width:34%">来源</th><th>我引用了它的什么</th><th style="width:12%">核验</th></tr>
+  <tr>
+    <td><b>一手</b><br>官方文档</td>
+    <td>Anthropic《Agent Skills》<br><a href="https://docs.anthropic.com/en/docs/claude-code/skills" target="_blank">docs.anthropic.com/en/docs/claude-code/skills</a></td>
+    <td>Skill 的目录结构与 YAML 元数据（<code>name</code>/<code>description</code>）；渐进式披露的三层加载机制</td>
+    <td>200 ✅</td>
+  </tr>
+  <tr>
+    <td><b>一手</b><br>官方发布公告</td>
+    <td>Anthropic《Equipping agents for the real world with Agent Skills》<br><a href="https://www.anthropic.com/news/skills" target="_blank">anthropic.com/news/skills</a></td>
+    <td>Skill 作为"可复用能力包"的产品定位与用法</td>
+    <td>200 ✅</td>
+  </tr>
+  <tr>
+    <td><b>一手</b><br>发布方工程博客</td>
+    <td>Anthropic《Writing effective tools for agents》<br><a href="https://www.anthropic.com/engineering/writing-tools-for-agents" target="_blank">anthropic.com/engineering/writing-tools-for-agents</a></td>
+    <td>工具/能力描述应写清"何时用、何时不用"——直接支撑本页 3.3 节关于 description 写法的论点</td>
+    <td>200 ✅</td>
+  </tr>
+  <tr>
+    <td><b>一手</b><br>协议规范</td>
+    <td>Model Context Protocol 官方站<br><a href="https://modelcontextprotocol.io/" target="_blank">modelcontextprotocol.io</a></td>
+    <td>MCP 的定位（连接数据与工具的标准协议），用于区分 Skill 与工具</td>
+    <td>200 ✅</td>
+  </tr>
+  <tr>
+    <td><b>一手</b><br>发布方工程博客</td>
+    <td>Anthropic《Building effective agents》<br><a href="https://www.anthropic.com/engineering/building-effective-agents" target="_blank">anthropic.com/engineering/building-effective-agents</a></td>
+    <td>Agent 与 workflow 的划分，用于区分 Skill 与 Workflow</td>
+    <td>200 ✅</td>
+  </tr>
+  <tr>
+    <td><b>一手</b><br>原始论文</td>
+    <td>Voyager: An Open-Ended Embodied Agent with LLMs (arXiv:2304.01552)<br><a href="https://arxiv.org/abs/2304.01552" target="_blank">arxiv.org/abs/2304.01552</a></td>
+    <td>早期的"技能库（skill library）"形态：把成功动作序列存为可复用技能——Skill 思想在 Agent 研究中的前身</td>
+    <td>200 ✅</td>
+  </tr>
+  <tr>
+    <td><b>参考</b><br>学术百科</td>
+    <td>Stanford Encyclopedia of Philosophy《Knowledge-how》<br><a href="https://plato.stanford.edu/entries/knowledge-how/" target="_blank">plato.stanford.edu/entries/knowledge-how</a></td>
+    <td>"知道怎么做"与"知道某事实"的概念区分，用于支撑第 5 节 Skill vs RAG 的对照</td>
+    <td>200 ✅</td>
+  </tr>
+</table>
+</section>
+
+<!-- ============ 8 ============ -->
+<section id="s8">
+<h2><span class="num">8</span>自检清单</h2>
+<table>
+  <tr><th style="width:8%">#</th><th style="width:52%">红线</th><th style="width:12%">结果</th><th>处理方式</th></tr>
+  <tr><td>1</td><td>边界清晰：既写了「是」，也写了「不是」</td><td>✅</td><td>第 1 节列了 3 条「不是什么」</td></tr>
+  <tr><td>2</td><td>全部外链生成当日验证可访问</td><td>✅</td><td>7 条全部 200</td></tr>
+  <tr><td>3</td><td>无编造的 URL / 数字 / 论文标题</td><td>✅</td><td>目录结构、字段名等均以官方文档为准，未凭记忆补写</td></tr>
+  <tr><td>4</td><td>来源 ≥3，一手 ≥1，覆盖 ≥2 个机构</td><td>✅</td><td>一手 6 条 + 参考 1 条；含 Anthropic、MCP 官方、arXiv、SEP</td></tr>
+  <tr><td>5</td><td>至少 1 个具体场景，写清失败后果</td><td>✅</td><td>第 4 节列出三种失败模式及其根因</td></tr>
+  <tr><td>6</td><td>≥3 条易混淆点、≥2 条使用边界</td><td>✅</td><td>5 条对照 + 5 条边界</td></tr>
+  <tr><td>7</td><td>「我的理解」里有一句可被反驳的判断</td><td>✅</td><td>「Skill 的价值在可版本化而非省提示词」，并自己给出反驳路径</td></tr>
+  <tr><td>8</td><td>事实 / 推断 / 判断三类陈述已区分</td><td>✅</td><td>全文使用三种彩色标签</td></tr>
+  <tr><td>9</td><td>术语首次出现有解释</td><td>✅</td><td>YAML 元数据、渐进式披露、MCP、RAG 等首现均有说明</td></tr>
+  <tr><td>10</td><td>页面可直开，图表有文字兜底</td><td>✅</td><td>Mermaid 图下方附等价文字版</td></tr>
+  <tr><td>11</td><td>通读一遍能讲给同背景同学听懂</td><td>✅</td><td>以「SOP 活页夹」类比贯穿全文</td></tr>
+</table>
+<div class="callout">
+<b>人工核查记录：</b>
+<ul style="margin:6px 0">
+  <li>初稿把 Skill 简单等同于"保存的提示词"，已按官方文档重写，补上"文件夹结构 + 渐进式披露 + 脚本可直接执行"三点。</li>
+  <li>本页刻意不写具体字段名之外的实现细节（如特定产品的私有字段），避免把某一家的实现当成通用定义。</li>
+  <li>第 5 节补充了 Skill 与 Workflow 的对照——初稿只对比了提示词与工具，漏掉了这一对最容易混的组合。</li>
+  <li>第 6 节的实践示例由"读文档"改为"亲手建 Skill + 做触发实验"，因为触发是否准确是 Skill 成败的关键，只读文档体会不到。</li>
+</ul>
+</div>
+</section>
+
+<footer>
+  本页由项目级 Skill <code>concept-study-forge</code> 生成，经人工核查后发布。<br>
+  <span class="tag t-fact">事实</span>有外部来源支撑 ·
+  <span class="tag t-infer">推断</span>基于事实的推理 ·
+  <span class="tag t-mine">我的判断</span>个人观点，可被反驳
+</footer>
+
+</div>
+<script>
+  if (window.mermaid) { mermaid.initialize({ startOnLoad: true, theme: 'default' }); }
+</script>
+</body>
+</html>

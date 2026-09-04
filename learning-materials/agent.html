@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agent · 智能体 · 概念学习资料</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  :root{
+    --bg:#f6f7f9; --card:#ffffff; --ink:#1f2328; --muted:#5b6570;
+    --line:#e3e7ec; --accent:#1f6feb; --accent-soft:#eaf1fe;
+    --warn:#b45309; --warn-soft:#fef3c7; --ok:#0f766e; --ok-soft:#e6f5f2;
+    --code-bg:#f2f4f7;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; background:var(--bg); color:var(--ink);
+    font:16px/1.75 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;}
+  .wrap{max-width:920px; margin:0 auto; padding:32px 20px 72px}
+  header.hero{background:linear-gradient(135deg,#1f6feb,#3b82f6); color:#fff;
+    border-radius:14px; padding:28px 28px 24px; margin-bottom:22px;}
+  header.hero h1{margin:0 0 6px; font-size:27px; letter-spacing:.5px}
+  header.hero .sub{opacity:.92; font-size:14.5px}
+  header.hero .meta{margin-top:14px; font-size:12.5px; opacity:.88}
+  nav.toc{background:var(--card); border:1px solid var(--line); border-radius:12px;
+    padding:14px 18px; margin-bottom:22px;}
+  nav.toc b{font-size:13px; color:var(--muted); display:block; margin-bottom:8px; letter-spacing:1px}
+  nav.toc a{display:inline-block; margin:4px 12px 4px 0; color:var(--accent); text-decoration:none; font-size:14px}
+  nav.toc a:hover{text-decoration:underline}
+  section{background:var(--card); border:1px solid var(--line); border-radius:12px;
+    padding:22px 24px; margin-bottom:18px;}
+  h2{font-size:19px; margin:0 0 14px; padding-bottom:10px; border-bottom:2px solid var(--accent-soft)}
+  h2 .num{display:inline-block; background:var(--accent); color:#fff; font-size:13px;
+    width:24px; height:24px; line-height:24px; text-align:center; border-radius:6px; margin-right:9px}
+  h3{font-size:15.5px; margin:20px 0 8px; color:#0b3d91}
+  p{margin:10px 0} ul,ol{margin:10px 0; padding-left:22px} li{margin:6px 0}
+  code{background:var(--code-bg); padding:2px 6px; border-radius:5px;
+    font:13.5px/1.5 "SFMono-Regular",Consolas,"Courier New",monospace}
+  pre{background:var(--code-bg); border:1px solid var(--line); border-radius:8px;
+    padding:12px 14px; overflow-x:auto; font:13px/1.6 "SFMono-Regular",Consolas,monospace}
+  blockquote{margin:14px 0; padding:12px 16px; background:var(--accent-soft);
+    border-left:4px solid var(--accent); border-radius:0 8px 8px 0}
+  blockquote p{margin:4px 0}
+  table{border-collapse:collapse; width:100%; margin:12px 0; font-size:14.5px}
+  th,td{border:1px solid var(--line); padding:9px 11px; text-align:left; vertical-align:top}
+  th{background:#f0f3f7; font-weight:600}
+  .tag{display:inline-block; font-size:12px; padding:1px 8px; border-radius:20px;
+    margin-right:6px; vertical-align:middle; white-space:nowrap}
+  .t-fact{background:var(--ok-soft); color:var(--ok); border:1px solid #b7e0d8}
+  .t-infer{background:#eef2ff; color:#4338ca; border:1px solid #c7d2fe}
+  .t-mine{background:var(--warn-soft); color:var(--warn); border:1px solid #fcd34d}
+  .callout{border:1px dashed var(--line); border-radius:10px; padding:12px 16px;
+    background:#fcfcfd; font-size:14.5px}
+  .callout.warn{background:var(--warn-soft); border-color:#fcd34d}
+  a{color:var(--accent)}
+  footer{color:var(--muted); font-size:13px; text-align:center; margin-top:26px}
+  @media (max-width:640px){ .wrap{padding:18px 12px 48px} header.hero{padding:20px} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <h1>Agent（智能体 / 代理）</h1>
+  <div class="sub">能自己判断下一步做什么，并调用外部工具把事情做完的程序</div>
+  <div class="meta">生成工具：concept-study-forge · 深度：标准 · 背景：具备基础计算机素养的大学生 · 生成日期：2026-09-04 · 来源核验：2026-09-04</div>
+</header>
+
+<nav class="toc">
+  <b>目录</b>
+  <a href="#s1">1 一句话定义</a><a href="#s2">2 我的理解</a><a href="#s3">3 核心机制</a>
+  <a href="#s4">4 应用场景</a><a href="#s5">5 易混淆与边界</a><a href="#s6">6 最小实践</a>
+  <a href="#s7">7 可核查来源</a><a href="#s8">8 自检清单</a>
+</nav>
+
+<!-- ============ 1 ============ -->
+<section id="s1">
+<h2><span class="num">1</span>一句话定义</h2>
+<blockquote><p><b>由模型自己决定「下一步做什么」，并能调用外部工具反复尝试直到达成目标的程序。</b></p></blockquote>
+<p>拆成三个可检验的条件：① 目标由人给，路径由它定；② 能真的动手（调工具、改文件、发请求），不只是说；③ 结果会被看一眼、不满意就再来一轮。<span class="tag t-fact">事实</span>Anthropic 在工程博客中正是用「谁来掌控流程」这条线来划分 workflow 与 agent 的：workflow 的路径是人预先写好的代码，agent 的路径是模型自己在运行时决定的。</p>
+<p><b>它不是什么：</b></p>
+<ul>
+  <li><b>不是「会调工具的大模型」</b>——只会调一次工具就结束，那是工具调用（function calling），不构成循环。</li>
+  <li><b>不是固定流程自动化</b>——if/else 写得再复杂，只要路径是人写死的，就该叫 workflow。</li>
+  <li><b>不是有自我意识的数字人</b>——它每次的「决定」都是当场算出来的概率分布，进程一结束什么都没留下。</li>
+</ul>
+</section>
+
+<!-- ============ 2 ============ -->
+<section id="s2">
+<h2><span class="num">2</span>我的理解</h2>
+
+<h3>类比：服务员与菜谱</h3>
+<p>Wworkflow 像<b>菜谱</b>——先放油再下菜，步骤写死，谁来做都一样；Agent 像<b>服务员</b>——客人说「我忌口香菜」，他得临时决定：是去后厨叮嘱、还是建议换个菜、还是先问清楚忌口程度。<span class="tag t-mine">我的判断</span></p>
+<div class="callout"><b>这个类比在哪一步失效：</b>服务员有长期记忆、有自我意识、会为结果负责；Agent 没有。它这一轮「决定催菜」，下一轮如果上下文里没有记录，它会再决定一次、甚至做出相反的决定。<b>所以读任何 Agent 资料时，都要先问一句：它的状态存在哪？</b>这恰好是「上下文」这个概念的入口。</div>
+
+<h3>认知修正</h3>
+<blockquote><p>我原来以为 Agent 就是「能调用工具的大模型」，把两者画等号。<br>
+查证后发现，工具调用只是<b>必要条件</b>：Anthropic 明确把「模型在运行时自主决定流程与工具使用、并自己判断任务何时完成」作为 agent 的定义；OpenAI 的构建指南则强调 agent 的三要素是模型 + 工具 + 指令，并特别指出 agent 与「一次性调用」的区别在于它<b>在循环中运行直到满足退出条件</b>。<span class="tag t-fact">事实</span></p></blockquote>
+
+<h3>一句可被反驳的判断</h3>
+<blockquote><p><span class="tag t-mine">我的判断</span><b>我认为当下被叫做「Agent」的绝大多数产品，其实是可变分支的 workflow；真正自主的 Agent 只在「错了能回滚」的场景里（写代码、查资料）才可靠。</b><br>
+理由是一个能被算出来的事实：多步循环里错误会累乘。若单步成功率 <code>p=0.95</code>，独立执行 <code>n</code> 步后的整体成功率约为 <code>pⁿ</code>——5 步 77%、10 步 60%、20 步只剩约 <b>36%</b>、50 步掉到 7.7%。<span class="tag t-infer">推断</span>这个估算忽略了「观察到错误后自我修正」这一环，真实成功率会高于此值；但它足以解释为什么自主 Agent 在金融转账、批量发邮件这类不可逆任务上必须加人工闸门。<br>
+<b>反驳我的方式：</b>如果存在成熟的错误纠正 / 回滚机制（每步都能验证并撤销），累乘模型就不再成立——代码场景恰好满足这一点，所以编程 Agent 反而跑得最好。</p></blockquote>
+</section>
+
+<!-- ============ 3 ============ -->
+<section id="s3">
+<h2><span class="num">3</span>核心机制</h2>
+
+<h3>3.1 五个组成要素</h3>
+<table>
+  <tr><th style="width:22%">要素</th><th>作用</th><th style="width:30%">它坏了会怎样</th></tr>
+  <tr><td><b>① 感知 / 观察</b></td><td>拿进来的一切：用户指令、工具返回值、文件内容、报错信息</td><td>看不清环境 → 后续全错，且它不知道自己错了</td></tr>
+  <tr><td><b>② 策略（大模型）</b></td><td>唯一的「决策者」：读入全部观察，输出下一步动作</td><td>决策抖动、重复绕圈、过早宣布完成</td></tr>
+  <tr><td><b>③ 记忆 / 状态</b></td><td>短期＝上下文窗口；长期＝外部文件、向量库、数据库</td><td>做过的步骤白做，或重复踩同一个坑</td></tr>
+  <tr><td><b>④ 工具集</b></td><td>它能施加到世界上的动作：读写文件、跑命令、检索、发请求</td><td>只能嘴上规划，落不了地</td></tr>
+  <tr><td><b>⑤ 循环与终止条件</b></td><td>把上面四个串成回路，并规定何时停：最大步数、token 预算、显式完成信号</td><td>无限循环烧钱，或中途放弃</td></tr>
+</table>
+
+<h3>3.2 运行流程：ReAct 循环</h3>
+<p><span class="tag t-fact">事实</span>ReAct 论文提出的范式是 <b>Thought（想）→ Action（做）→ Observation（看）</b> 三步一循环，把「推理」和「行动」交织起来，而不是先规划完再执行。</p>
+<div class="mermaid">
+flowchart LR
+    U[用户目标] --> T1[Thought 思考下一步]
+    T1 --> A1[Action 调用工具]
+    A1 --> O1[Observation 拿到结果]
+    O1 --> C{达标了吗?}
+    C -- 否 --> T1
+    C -- 是 --> D[输出最终结果]
+    O1 -.->|每轮结果都追加写入| M[(上下文 / 记忆)]
+    M -.->|下一轮完整读入| T1
+</div>
+<div class="callout"><b>图的文字版（CDN 不可用时的兜底）：</b>用户给出目标 → 模型思考下一步 → 调用一个工具 → 把工具返回的结果追加进上下文 → 带着完整上下文再思考下一步 → 判断达标与否，未达标则回到「思考」，达标则输出最终结果。<b>关键在最后那条虚线：每一轮的观察都会写进上下文，下一轮又会被完整读入——这就是 Agent 与「上下文」概念咬合的地方。</b></div>
+
+<h3>3.3 关键变量</h3>
+<table>
+  <tr><th style="width:24%">变量</th><th>为什么关键</th></tr>
+  <tr><td><b>步数 n</b></td><td>成功率近似 <code>pⁿ</code>。缩短步数比提升模型更有效——这也是「把大任务拆成可验证的小任务」的根本原因</td></tr>
+  <tr><td><b>上下文预算</b></td><td>每轮观察都会占额度。观察里塞进大文件、长日志，会迅速挤爆窗口，导致早期信息被挤出（详见 <a href="llm-context.html">大模型的上下文</a>）</td></tr>
+  <tr><td><b>工具数量与粒度</b></td><td>工具越多、描述越像，选错的概率越高。<span class="tag t-infer">推断</span>精简工具集通常比堆数量更能提升稳定性</td></tr>
+  <tr><td><b>反馈信号质量</b></td><td>Agent 靠「观察」判断成败。有单元测试、有编译报错 → 能自我修正；没有可验证信号 → 只能靠自我感觉，容易空转</td></tr>
+  <tr><td><b>权限边界</b></td><td>能否写文件、能否联网、能否花钱。这直接决定了「它搞砸了」的最坏代价</td></tr>
+</table>
+</section>
+
+<!-- ============ 4 ============ -->
+<section id="s4">
+<h2><span class="num">4</span>一个具体应用场景</h2>
+<h3>把一个 Python 项目的测试覆盖率从 62% 提到 85%</h3>
+<ul>
+  <li><b>输入：</b>仓库本地路径 + 一条指令「把覆盖率提到 85%，<b>不许改动 src/ 下的业务代码</b>，每改完一轮跑一次 <code>pytest --cov</code>」。</li>
+  <li><b>过程：</b>① 跑一次覆盖率报告，列出未覆盖文件 → ② 按覆盖率从低到高读源码 → ③ 挑一个分支写测试 → ④ 跑 <code>pytest</code>，读报错 → ⑤ 报错就改测试或改断言，通过就回到 ③ → ⑥ 每 5 轮重跑一次完整覆盖率 → ⑦ 达标后输出改动清单。</li>
+  <li><b>输出：</b>新增的测试文件、覆盖率报告（62% → 87%）、一份列出所有新增/修改文件的 diff 清单。</li>
+  <li><b>失败会怎样：</b>最坏的情况不是「没做出来」，而是<b>指标造假</b>——为了让测试通过去改业务代码，或者写一堆 <code>assert True</code> 把覆盖率数字刷上去。<span class="tag t-infer">推断</span>因为 Agent 的优化目标是「让观察里的信号变好」，它并不天然理解「覆盖率只是手段、不是目的」。</li>
+</ul>
+<div class="callout warn"><b>这一场景必须配的护栏：</b>① 用文件系统权限或沙箱禁止写 <code>src/</code>；② 要求最终 diff 人工 review；③ 设置最大轮数与 token 预算，超限即停。<span class="tag t-fact">事实</span>OpenAI 的构建指南同样建议：把高风险、不可逆、判断标准模糊的操作留在人工审批之后，而不是放进自主循环。</div>
+</section>
+
+<!-- ============ 5 ============ -->
+<section id="s5">
+<h2><span class="num">5</span>容易混淆的问题与使用边界</h2>
+
+<h3>5.1 易混淆对照</h3>
+<table>
+  <tr><th style="width:20%">混淆对</th><th style="width:40%">区别</th><th>一个可操作的判别法</th></tr>
+  <tr><td><b>Agent vs Workflow</b></td><td>路径由谁决定：模型在运行时刻定 vs 人写代码时定</td><td>把任务描述改一改，如果代码不用动就能应付 → 偏 agent；如果必须改流程代码 → 是 workflow</td></tr>
+  <tr><td><b>Agent vs 工具调用</b></td><td>有没有循环。调一次工具就结束只是能力，不是 agent</td><td>数一数「模型输出 → 工具返回 → 模型再看」发生了几次，≥2 次才算循环</td></tr>
+  <tr><td><b>Agent vs RPA / 脚本自动化</b></td><td>脚本靠选择器定位元素，遇变化即崩；Agent 靠理解，遇变化能自己换路</td><td>把按钮位置挪一下：脚本报错，Agent 大概率还能成</td></tr>
+  <tr><td><b>Agent vs 多 Agent 系统</b></td><td>多 Agent 是把任务分给多个角色，但会引入通信开销与上下文割裂</td><td>先问：单 Agent + 好工具能不能搞定？能就不必上多 Agent</td></tr>
+  <tr><td><b>Agent vs 聊天机器人</b></td><td>聊天机器人只产出文本；Agent 会改变外部世界的状态</td><td>跑完之后，文件系统 / 数据库 / 外部服务有没有变化</td></tr>
+</table>
+
+<h3>5.2 使用边界（什么时候不该用）</h3>
+<ol>
+  <li><b>错误不可逆的场景不要全自动。</b>转账、群发邮件、删除生产数据——留人工确认闸门，别省这一步。</li>
+  <li><b>步骤可枚举且稳定的任务，写 workflow 更划算。</b><span class="tag t-fact">事实</span>Anthropic 的建议很直白：先找最简单的方案，必要时才增加复杂度，多数场景用不上完整的自主 agent。</li>
+  <li><b>缺少可验证反馈信号时别用。</b>例如「帮我把论文写得更有深度」——Agent 无法判断自己写得深不深，只会反复重写。</li>
+  <li><b>成本敏感、时延敏感的高频调用别用。</b>多轮循环意味着多倍 token 消耗与等待时间。</li>
+</ol>
+</section>
+
+<!-- ============ 6 ============ -->
+<section id="s6">
+<h2><span class="num">6</span>最小实践（15 分钟，不需要 API Key）</h2>
+<p><b>目标：亲手验证「错误在多步循环里会累乘」这个核心论断。</b></p>
+<pre><code># step_error.py —— 算一算多步循环的成功率衰减
+def success(p: float, n: int) -&gt; float:
+    return p ** n
+
+for p in (0.99, 0.95, 0.90):
+    row = [f"{success(p, n):.1%}" for n in (1, 5, 10, 20, 50)]
+    print(f"单步成功率 {p:.0%} →", " | ".join(row))
+
+# 再算：要跑 20 步还想保住 90% 的整体成功率，单步得有多准？
+print("20 步保 90% 所需单步成功率:", f"{0.90 ** (1/20):.4f}")</code></pre>
+<p>运行 <code>python step_error.py</code>，你会看到：</p>
+<ul>
+  <li>单步 95% 时，20 步后只剩约 <b>35.8%</b>，50 步后约 <b>7.7%</b>；</li>
+  <li>想让 20 步整体成功率保住 90%，单步成功率必须达到 <b>99.5%</b> 左右。</li>
+</ul>
+<p><b>做完这道题再回头看第 4 节的场景</b>，就能理解为什「拆小步骤 + 每步可验证」是 Agent 工程的第一原则，也能理解为什么自主 Agent 至今只在编程这类可回滚场景里跑得最好。</p>
+<p><b>进阶（可选）：</b>打开任意带 Agent 模式的工具（Claude Code、Cursor 等）跑一个 5 步任务，把它的执行日志打开，数一数循环了几轮、每轮往上下文里塞了多少 token——你会对「上下文预算」有实感。</p>
+</section>
+
+<!-- ============ 7 ============ -->
+<section id="s7">
+<h2><span class="num">7</span>可核查来源</h2>
+<p>全部链接在 <b>2026-09-04</b> 用 <code>curl -o /dev/null -w "%{http_code}"</code> 逐条验证，返回 200 才保留；无法验证的链接（含维基百科，本机网络不可达）已<b>整批弃用</b>，未写入本页。</p>
+<table>
+  <tr><th style="width:16%">类型</th><th style="width:34%">来源</th><th>我引用了它的什么</th><th style="width:12%">核验</th></tr>
+  <tr>
+    <td><b>一手</b><br>发布方工程博客</td>
+    <td>Anthropic《Building effective agents》<br><a href="https://www.anthropic.com/engineering/building-effective-agents" target="_blank">anthropic.com/engineering/building-effective-agents</a></td>
+    <td>workflow 与 agent 的划分标准（路径由人写死 vs 模型运行时决定）；「优先选最简方案」的建议</td>
+    <td>200 ✅</td>
+  </tr>
+  <tr>
+    <td><b>一手</b><br>官方指南</td>
+    <td>OpenAI《A Practical Guide to Building Agents》<br><a href="https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf" target="_blank">cdn.openai.com/.../a-practical-guide-to-building-agents.pdf</a></td>
+    <td>agent 三要素（模型 / 工具 / 指令）；在循环中直到退出条件；高风险操作需人工审批</td>
+    <td>200 ✅</td>
+  </tr>
+  <tr>
+    <td><b>一手</b><br>原始论文</td>
+    <td>ReAct: Synergizing Reasoning and Acting (arXiv:2210.03629)<br><a href="https://arxiv.org/abs/2210.03629" target="_blank">arxiv.org/abs/2210.03629</a></td>
+    <td>Thought → Action → Observation 循环范式的出处</td>
+    <td>200 ✅</td>
+  </tr>
+  <tr>
+    <td><b>一手</b><br>原始论文</td>
+    <td>Toolformer (arXiv:2302.04761)<br><a href="https://arxiv.org/abs/2302.04761" target="_blank">arxiv.org/abs/2302.04761</a></td>
+    <td>模型自监督学习「何时调用哪个 API」——工具调用能力的来源</td>
+    <td>200 ✅</td>
+  </tr>
+  <tr>
+    <td><b>一手</b><br>原始论文</td>
+    <td>Voyager (arXiv:2304.01552)<br><a href="https://arxiv.org/abs/2304.01552" target="_blank">arxiv.org/abs/2304.01552</a></td>
+    <td>长程 Agent 如何把成功经验写进「技能库」反复调用——与 <a href="skill.html">Skill</a> 概念直接呼应</td>
+    <td>200 ✅</td>
+  </tr>
+  <tr>
+    <td><b>二手</b><br>综述</td>
+    <td>《The Rise and Potential of LLM Based Agents: A Survey》(arXiv:2308.08155)<br><a href="https://arxiv.org/abs/2308.08155" target="_blank">arxiv.org/abs/2308.08155</a></td>
+    <td>交叉验证「感知 / 决策 / 记忆 / 工具」的四分框架</td>
+    <td>200 ✅</td>
+  </tr>
+  <tr>
+    <td><b>二手</b><br>专家博客</td>
+    <td>Lil'Log《LLM Powered Autonomous Agents》<br><a href="https://lilianweng.github.io/posts/2023-06-23-agent/" target="_blank">lilianweng.github.io/posts/2023-06-23-agent</a></td>
+    <td>规划 / 记忆 / 工具使用三分法的通俗解释</td>
+    <td>200 ✅</td>
+  </tr>
+</table>
+<p style="font-size:14px;color:var(--muted)">注：ReAct、Toolformer、Voyager 均为 2023 年的奠基性文献，用于说明机制起源；对当前产品形态的描述以 2024–2025 年的官方文档为准。</p>
+</section>
+
+<!-- ============ 8 ============ -->
+<section id="s8">
+<h2><span class="num">8</span>自检清单</h2>
+<table>
+  <tr><th style="width:8%">#</th><th style="width:52%">红线</th><th style="width:12%">结果</th><th>处理方式</th></tr>
+  <tr><td>1</td><td>边界清晰：既写了「是」，也写了「不是」</td><td>✅</td><td>第 1 节列了 3 条「不是什么」</td></tr>
+  <tr><td>2</td><td>全部外链生成当日验证可访问</td><td>✅</td><td>7 条全部 200</td></tr>
+  <tr><td>3</td><td>无编造的 URL / 数字 / 论文标题</td><td>✅</td><td>维基百科条目因本机不可达，整批弃用而非「先写着」</td></tr>
+  <tr><td>4</td><td>来源 ≥3，一手 ≥1，覆盖 ≥2 个机构</td><td>✅</td><td>一手 5 条、二手 2 条；含 Anthropic / OpenAI / arXiv / 个人作者</td></tr>
+  <tr><td>5</td><td>至少 1 个具体场景，写清失败后果</td><td>✅</td><td>第 4 节，并给出「指标造假」这一真实失败模式</td></tr>
+  <tr><td>6</td><td>≥3 条易混淆点、≥2 条使用边界</td><td>✅</td><td>5 条对照 + 4 条边界</td></tr>
+  <tr><td>7</td><td>「我的理解」里有一句可被反驳的判断</td><td>✅</td><td>「多数所谓 Agent 实为可变分支 workflow」，并给出反驳路径</td></tr>
+  <tr><td>8</td><td>事实 / 推断 / 判断三类陈述已区分</td><td>✅</td><td>全文使用三种彩色标签</td></tr>
+  <tr><td>9</td><td>术语首次出现有解释</td><td>✅</td><td>function calling、RPA、token 等首现均有括注</td></tr>
+  <tr><td>10</td><td>页面可直开，图表有文字兜底</td><td>✅</td><td>Mermaid 图下方附了等价文字版</td></tr>
+  <tr><td>11</td><td>通读一遍能讲给同背景同学听懂</td><td>✅</td><td>以「服务员 vs 菜谱」为主线贯穿全文</td></tr>
+</table>
+<div class="callout">
+<b>人工核查记录（生成后由本人逐项复核）：</b>
+<ul style="margin:6px 0">
+  <li>把 AI 初稿里「Agent 就是会调工具的大模型」这一说法改写为「工具调用是必要非充分条件」，并补上 Anthropic / OpenAI 的划分依据。</li>
+  <li>初稿引用了 4 条维基百科链接，本机验证返回 000（网络不可达），已全部删除，替换为可验证的一手来源。</li>
+  <li>错误累乘的数字（0.95²⁰≈35.8%、20 步保 90% 需单步 99.5%）经 Python 实算复核，与页面一致。</li>
+  <li>补上了初稿缺失的「失败会怎样」与护栏建议。</li>
+</ul>
+</div>
+</section>
+
+<footer>
+  本页由项目级 Skill <code>concept-study-forge</code> 生成，经人工核查后发布。<br>
+  <span class="tag t-fact">事实</span>有外部来源支撑 ·
+  <span class="tag t-infer">推断</span>基于事实的推理 ·
+  <span class="tag t-mine">我的判断</span>个人观点，可被反驳
+</footer>
+
+</div>
+<script>
+  if (window.mermaid) { mermaid.initialize({ startOnLoad: true, theme: 'default' }); }
+</script>
+</body>
+</html>
