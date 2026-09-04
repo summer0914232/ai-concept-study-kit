@@ -5,6 +5,10 @@
 
 ---
 
+**仓库地址**：<https://gitee.com/summer0914232/summers-warehouse>
+
+---
+
 ## 一、这个仓库是做什么的
 
 | 目标 | 对应内容 |
@@ -241,13 +245,12 @@ git push
 
 ## 九、提交记录说明
 
-本仓库的提交按作业步骤分批进行，便于教师查看过程：
+本仓库的提交按作业步骤分批进行，便于教师查看过程（共 4 次提交）：
 
-1. 初始化仓库 + `.gitignore`
-2. 新增项目级 Skill `concept-study-forge`
-3. 生成三份概念学习资料
-4. 新增概念关系说明与 README
-5. 人工核查后的修正（来源替换、事实校正、表述打磨）
+1. `chore` 初始化仓库 + `.gitignore`
+2. `feat` 新增项目级 Skill `concept-study-forge`
+3. `docs` 生成三份概念学习资料
+4. `docs` 新增概念关系说明与 README
 
 ---
 
