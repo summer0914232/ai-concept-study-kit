@@ -5,7 +5,7 @@
 
 ---
 
-**仓库地址**：<https://gitee.com/summer0914232/summers-warehouse>
+**仓库地址**：<https://github.com/summer0914232/ai-concept-study-kit>
 
 ---
 
@@ -208,12 +208,20 @@ id_rsa  id_ed25519     # SSH 私钥
 !.workbuddy/skills/    # 但保留 skills（这才是要交的作业内容）
 ```
 
-两点说明：
+三点说明：
 
 1. `.workbuddy/skills/` 是被显式**重新包含**的——它是本作业的核心产物，必须提交；
    而 `.workbuddy/` 下的记忆与会话缓存属于个人数据，已排除。
 2. 全部提交均使用不含个人信息的本地 git 身份，且推送前已用
    `git diff --stat` 与 `git ls-files` 复核过文件清单，确认无敏感内容误入。
+3. **推送用的访问令牌没有落进仓库。** 本次向 GitHub 推送使用了一个个人访问令牌，
+   它通过命令行环境变量与临时凭据助手传入，**从未写入任何文件**（包括 `.git/config`）；
+   推送完成后该令牌已在 GitHub 网页端删除。可自查：
+
+   ```bash
+   git config --local --get-regexp 'credential|url'   # 不应出现任何令牌
+   git remote -v                                       # 地址中不含令牌
+   ```
 
 如果你要复用本仓库，**推送前请自己再跑一遍**：
 
@@ -227,7 +235,7 @@ git ls-files | xargs -I{} grep -l -E "api[_-]?key|token|password|secret" {} 2>/d
 
 ```bash
 # 1. 克隆
-git clone https://github.com/<你的用户名>/ai-concept-study-kit.git
+git clone https://github.com/summer0914232/ai-concept-study-kit.git
 cd ai-concept-study-kit
 
 # 2. 用 WorkBuddy 打开本目录，Skill 即被自动发现
@@ -245,12 +253,19 @@ git push
 
 ## 九、提交记录说明
 
-本仓库的提交按作业步骤分批进行，便于教师查看过程（共 4 次提交）：
+本仓库的提交按作业步骤分批进行，便于教师查看过程（共 6 次提交）：
 
-1. `chore` 初始化仓库 + `.gitignore`
-2. `feat` 新增项目级 Skill `concept-study-forge`
-3. `docs` 生成三份概念学习资料
-4. `docs` 新增概念关系说明与 README
+| # | 提交 | 对应作业步骤 |
+| --- | --- | --- |
+| 1 | `chore` 初始化仓库 + `.gitignore` | 步骤一：创建仓库并克隆到本地 |
+| 2 | `feat` 新增项目级 Skill `concept-study-forge` | 步骤二、三：在仓库内建 Skill 并放到 `.workbuddy/skills/` |
+| 3 | `docs` 生成三份概念学习资料 | 步骤四：调用 Skill 学习三个概念 |
+| 4 | `docs` 新增概念关系说明与 README | 步骤四、五：补关系说明 |
+| 5 | `docs` 补充仓库地址并修正提交记录说明 | 步骤五：核查后的修正 |
+| 6 | `docs` 迁移至 GitHub 并更新仓库说明 | 步骤五：按要求改用 GitHub 公开仓库 |
+
+> 说明：第 1–5 次提交原本推送到 Gitee（国内镜像），第 6 次起改为 GitHub 公开仓库，
+> 以满足作业「GitHub 仓库须保持公开访问」的要求。历史提交予以保留，未做变基或改写。
 
 ---
 
